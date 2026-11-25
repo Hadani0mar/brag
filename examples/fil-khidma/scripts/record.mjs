@@ -7,7 +7,7 @@ const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftsha
 const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
 p.on('pageerror', e => console.log('pageerror', e.message));
 p.on('console', m => { if (m.type() === 'error') console.log('console', m.text()); });
-await p.goto(`http://localhost:${process.env.PORT || 5177}/build/index.html${process.env.Q || ''}`);
+await p.goto(`http://localhost:${process.env.PORT || 5177}/hf/index.html${process.env.Q || ''}`);
 await p.waitForFunction(() => window.__ready, null, { timeout: 120000 });
 const shoot = async (t, file) => { await p.evaluate(t => window.renderAt(t), t); await p.evaluate(() => new Promise(r => requestAnimationFrame(() => r()))); await p.screenshot({ path: file, type: 'jpeg', quality: mode === 'frames' ? 94 : 88 }); };
 if (mode === 'stills') { for (const t of rest.map(Number)) { await shoot(t, `${out}/t${t.toFixed(2)}.jpg`); console.log('still', t); } }

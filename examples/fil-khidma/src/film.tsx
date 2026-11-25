@@ -127,6 +127,10 @@ const LOCAL_TILES = [515, 667, 818]; // Libyana, Al Madar, LTT
 const GALLERY = ['global', 'local', 'telegram', 'khalis', 'profile'];
 const ZB = Number(new URLSearchParams(location.search).get('zb') || 0.76);
 const CY = Number(new URLSearchParams(location.search).get('cy') || -0.06);
+const Q_SAMPLES = Number(new URLSearchParams(location.search).get('samples') || 4);
+const Q_RES = Number(new URLSearchParams(location.search).get('res') || 1);
+const EW = Math.round(1080 * Q_RES / 2) * 2, EH = Math.round(1920 * Q_RES / 2) * 2;
+const Q_PREVIEW = new URLSearchParams(location.search).get('preview') === '1';
 const PHONE_H = 1.553, PHONE_W = 0.744;
 
 function iconPos(cy: number) { // where a list row's icon sits on the phone, in phone space
@@ -154,7 +158,7 @@ function buildDoc(t: number) {
       each.push({
         x: lerp(src.x + ph.x, dst.x, k), y: lerp(src.y, dst.y, k), z: lerp(0.05, dst.z, k),
         spin: lerp(ph.spin, dst.spin, k), tilt: lerp(0, dst.tilt, k), roll: lerp(0, dst.roll, k),
-        scale: lerp(0.35, 1, k), opacity: clamp(k * 3, 0, 1)
+        scale: lerp(0.35, 1, k), opacity: clamp(k * 3, 0, 1) * (1 - easeIO(span(t, to, to + 0.18)))
       });
     });
   };
@@ -302,7 +306,7 @@ function Overlay({ t }: { t: number }) {
 
       {/* stageshow satellites */}
       <Sat x={540} y={1655} k={ease(span(t, 4.7, 5.15)) * (1 - easeIO(span(t, 7.3, 7.6)))} scale={2.35}>
-        <Notification icon={<img src="../assets/brand/logo.png" alt="" style={{ background: '#fff' }} />} title="في الخدمة" body="شحن رصيد وألعاب فوري وبأمان" time="الآن" className="notif" />
+        <Notification icon={<img src="assets/brand/logo.png" alt="" style={{ background: '#fff' }} />} title="في الخدمة" body="شحن رصيد وألعاب فوري وبأمان" time="الآن" className="notif" />
       </Sat>
       <Sat x={300} y={1560} k={easeOutBack(span(t, CHIP_TG + 0.1, CHIP_TG + 0.55)) * (1 - easeIO(span(t, 15.4, 15.75)))} scale={3.0} from={-60}>
         <Chip><span className="chip-in">✓ bn0mardev@</span></Chip>
@@ -324,16 +328,16 @@ function Overlay({ t }: { t: number }) {
       {t > 31.7 && (
         <div className="endcard">
           <div className="logo-disc" style={{ opacity: clamp(endK * 2, 0, 1), transform: `scale(${0.4 + 0.6 * easeOutBack(span(t, 31.95, 32.65))}) rotate(${(1 - ease(span(t, 31.95, 32.7))) * -40}deg)` }}>
-            <img src="../assets/brand/logo.png" alt="" />
+            <img src="assets/brand/logo.png" alt="" />
           </div>
           <h1 className="end-name"><BlurText text="في الخدمة" t={t} at={32.35} step={0.12} /></h1>
           <div className="end-tag"><BlurText text="التطبيق الأول في ليبيا لخدمة المواطن إلكترونياً" t={t} at={32.8} step={0.06} /></div>
           <div className="store" style={{ opacity: ease(span(t, 33.5, 33.9)), transform: `translateY(${(1 - ease(span(t, 33.5, 33.9))) * 30}px)` }}>
-            <img src="../assets/brand/google-play.svg" alt="" />
+            <img src="assets/brand/google-play.svg" alt="" />
             <span><small>حمّله الآن من</small>Google Play</span>
           </div>
           <div className="creator" style={{ opacity: ease(span(t, 34.0, 34.4)) }}>
-            <img src="../assets/brand/creator.jpg" alt="" />
+            <img src="assets/brand/creator.jpg" alt="" />
             <span className="creator-text"><small>تصميم وموشن</small><Decrypted text={HANDLE} t={t} at={34.05} /></span>
           </div>
           <div className="unofficial" style={{ opacity: ease(span(t, 34.3, 34.7)) * 0.7 }}>إعلان غير رسمي · لقطات حقيقية من التطبيق</div>
@@ -356,10 +360,10 @@ async function boot() {
   await document.fonts.load('500 40px "IBM Plex Sans Arabic"');
   await document.fonts.load('500 40px Inter');
   await document.fonts.ready;
-  await loadImages('../assets');
+  await loadImages('assets');
   const canvas = document.getElementById('stage') as HTMLCanvasElement;
-  canvas.width = W; canvas.height = H;
-  renderer = new Renderer(canvas, { preserve: true, samples: 4 });
+  canvas.width = EW; canvas.height = EH;
+  renderer = new Renderer(canvas, { preserve: true, samples: Q_SAMPLES });
   bg = new Grainient(W, H);
   cache = new TextCache();
   main = new Screen();
@@ -387,11 +391,28 @@ function renderAt(t: number) {
   const name = mainScreen(t);
   const live = name === 'streamers';
   if (main.paint(name, screenState(name, t), Math.round(t * FPS) / FPS, live)) renderer.setMedia(0, main.canvas, SW, SH, { mips: true });
-  renderShot(renderer, buildDoc(t), media, { width: W, height: H, time: t, cache, seed: Math.floor(t * FPS) });
+  renderShot(renderer, buildDoc(t), media, { width: EW, height: EH, time: t, cache, seed: Math.floor(t * FPS), preview: Q_PREVIEW });
   flushSync(() => root.render(<Overlay t={t} />));
   return true;
 }
 
+(window as any).__profile = (t: number) => {
+  const fin = (gl: any) => { const px = new Uint8Array(4); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); };
+  const o: any = {}; let a = performance.now();
+  bg.draw({ time: 3 + t * 0.224, ramp: ramp(t), angle: 55, reveal: 1, frame: 1, silk: 0.4, flow: 0.9, grain: 0.06 }); fin(bg.gl); o.bg = performance.now() - a; a = performance.now();
+  renderer.setBackgroundImage(bg.canvas, W, H); fin(renderer.gl); o.upload = performance.now() - a; a = performance.now();
+  const name = mainScreen(t); main.paint(name, screenState(name, t), t, true); renderer.setMedia(0, main.canvas, SW, SH, { mips: true }); fin(renderer.gl); o.screen = performance.now() - a; a = performance.now();
+  renderShot(renderer, buildDoc(t), media, { width: EW, height: EH, time: t, cache, seed: 1, preview: Q_PREVIEW }); fin(renderer.gl); o.engine = performance.now() - a; a = performance.now();
+  flushSync(() => root.render(<Overlay t={t} />)); o.react = performance.now() - a;
+  return o;
+};
 (window as any).renderAt = renderAt;
 (window as any).FILM = { FPS, DURATION };
-boot();
+const ready = boot().then(() => renderAt(0));
+const hf = ((window as any).__hf = (window as any).__hf || {});
+hf.buildReady = hf.buildReady || {};
+hf.buildReady['film'] = ready;
+window.addEventListener('hf-seek', (e: any) => {
+  if ((window as any).__ready) renderAt(e.detail.time);
+  else e.detail.waitUntil?.(ready.then(() => renderAt(e.detail.time)));
+});

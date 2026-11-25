@@ -20,13 +20,13 @@ Scenes: hook → global cards (floating 3D tiles) → local cards (Libyana, Al M
 
 ```bash
 npm i
-node build.mjs                      # bundles src/film.tsx → build/
+node build.mjs                      # bundles src/film.tsx → hf/ (also a HyperFrames composition)
 node scripts/serve.mjs . 5177 &     # static server
 node scripts/record.mjs stills out/st 2.7 5.5 13.3      # check frames
-node scripts/record.mjs frames out/frames 0 1080        # full render (split ranges across workers)
+Q="?samples=4&preview=1&res=0.75" node scripts/record.mjs frames out/frames 0 1080   # fast path, ~10 min on CPU
 node scripts/cues.mjs && python3 audio/mix.py
 ffmpeg -i audio/mix_raw.wav -af loudnorm=I=-14:TP=-1.5:LRA=11 audio/mix.wav
-ffmpeg -framerate 30 -i out/frames/f%05d.jpg -i audio/mix.wav -c:v libx264 -crf 20 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart fil-khidma.mp4
+ffmpeg -framerate 30 -i out/frames/f%05d.jpg -i audio/mix.wav -c:v libx264 -crf 23 -maxrate 10M -bufsize 20M -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart fil-khidma.mp4
 ```
 
 All timing lives in `src/timeline.js`; the picture and the sound both read it.

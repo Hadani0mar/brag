@@ -2,3 +2,5 @@ node_modules
 out/
 hf/film.bundle.*
 hf/lib/
+audio/voice16.raw
+audio/mix_raw.wav

@@ -47,15 +47,15 @@ const SAT_TILES: Record<string, { zone: number; side: number; list: string[] }> 
 type CamKey = { t: number; x: number; y: number; z?: number; w: number; rx: number; ry: number; e?: string };
 const CAM: CamKey[] = [
   { t: 0, x: 0, y: 1.2, w: 1.75, rx: 4, ry: -6 },
-  { t: 5.2, x: 0, y: 1.18, w: 1.7, rx: 4, ry: 4 },
-  { t: 6.85, x: 0, y: 1.22, w: 1.6, rx: 5, ry: 2 },
+  { t: 8.4, x: 0, y: 1.18, w: 1.7, rx: 4, ry: 4 },
+  { t: T.toGlobal - 0.1, x: 0, y: 1.22, w: 1.6, rx: 5, ry: 2 },
   { t: T.toGlobal + 0.5, x: ZONE.global, y: 1.02, w: 1.6, rx: 6, ry: -14, e: 'whip' },
   { t: T.toLocal - 0.05, x: ZONE.global + 0.08, y: 1.0, w: 1.5, rx: 6, ry: -8 },
   { t: T.toLocal + 0.5, x: ZONE.local, y: 1.02, w: 1.6, rx: 6, ry: 14, e: 'whip' },
   { t: T.reveal - 0.05, x: ZONE.local - 0.08, y: 1.0, w: 1.5, rx: 6, ry: 8 },
   // re-hook: the camera rises and shows the whole world of services
-  { t: T.reveal + 0.75, x: 10.4, y: 1.9, w: 5.4, rx: 20, ry: -24, e: 'io' },
-  { t: T.toTg - 0.1, x: 10.6, y: 1.9, w: 5.1, rx: 20, ry: -18 },
+  { t: T.reveal + 0.7, x: 8.6, y: 1.45, w: 3.7, rx: 15, ry: -26, e: 'io' },
+  { t: T.toTg - 0.1, x: 9.4, y: 1.45, w: 3.5, rx: 15, ry: -20 },
   { t: T.toTg + 0.6, x: ZONE.tg, y: 1.02, w: 1.6, rx: 6, ry: -8, e: 'whip' },
   { t: T.typeStart - 0.2, x: ZONE.tg + 0.04, y: 1.05, w: 1.35, rx: 6, ry: -6 },
   { t: T.tgChip + 0.6, x: ZONE.tg + 0.04, y: 1.05, w: 1.3, rx: 6, ry: -5 },
@@ -85,8 +85,8 @@ function cam(t: number) {
 function screenState(name: string, t: number) {
   const f = (a: number, d = 0.8) => ease(span(t, a, a + 0.22)) * (1 - easeIO(span(t, a + d, a + d + 0.22)));
   switch (name) {
-    case 'global': return { rows: [[1422, f(8.0)], [969, f(8.7)]], tap: span(t, 9.6, 10.2), tapY: 969 };
-    case 'local': return { rows: [[515, f(11.4, 0.55)], [667, f(12.0, 0.55)], [818, f(12.6, 0.55)]] };
+    case 'global': return { rows: [[1422, f(12.0, 0.6)], [969, f(12.75, 0.9)]], tap: span(t, 15.4, 16.0), tapY: 969 };
+    case 'local': return { rows: [[515, f(17.65, 0.55)], [667, f(18.35, 0.55)], [818, f(19.05, 0.7)]] };
     case 'telegram': return { typed: t < T.typeStart ? 0 : Math.floor((t - T.typeStart) / T.typeStep) + 1, caret: t > T.typeStart - 0.4 && t < T.tgTap ? 1 : 0, press: span(t, T.tgTap, T.tgTap + 0.35), chip: span(t, T.tgChip, T.tgChip + 0.4), tap: span(t, T.tgTap - 0.05, T.tgTap + 0.6) };
     case 'khalis': return { press: span(t, T.khTap, T.khTap + 0.5), tap: span(t, T.khTap - 0.05, T.khTap + 0.65) };
     case 'technicians': return { tap: span(t, T.techTap, T.techTap + 0.6), tapX: 0.5, tapY: 0.43 };
@@ -168,11 +168,11 @@ function offsets(t: number) {
       o.x = (ZONE.hook - rest[0]) * m; o.y += (1.2 - rest[1]) * m; o.z = 0.25 * m;
       o.opacity = clamp(inK * 4, 0, 1) * (1 - span(m, 0.8, 1));
     } else if (key === 'logo') {
-      const first = (1 - easeIO(span(t, 1.45, 1.75)));
+      const first = (1 - easeIO(span(t, 3.05, 3.35)));
       const k = Math.max(first, back(span(t, T.merge + 0.25, T.merge + 0.85)));
       const out = easeIO(span(t, T.toGlobal, T.toGlobal + 0.3));
       o.scale = 0.2 + 0.8 * k; o.opacity = clamp(k * 3, 0, 1) * (1 - out);
-      o.spin = (t < 2 ? -14 + t * 10 : (1 - k) * -200) + Math.sin(t * 1.2) * 8; o.y = bob(0, 0.03) - (t < 2 ? 0.2 : 0);
+      o.spin = (t < 3.4 ? -14 + t * 8 : (1 - k) * -200) + Math.sin(t * 1.2) * 8; o.y = bob(0, 0.03) - (t < 3.4 ? 0.2 : 0);
     } else if (key === 'logo_end') {
       const k = back(span(t, T.toEnd + 0.45, T.toEnd + 1.05));
       o.scale = 0.2 + 0.8 * k; o.opacity = clamp(k * 3, 0, 1); o.spin = (1 - k) * 220 + Math.sin(t * 1.1) * 6; o.y = bob(1, 0.025);
@@ -241,7 +241,7 @@ function Hook({ t }: { t: number }) {
       <div className="hook-head" style={{ transform: `translateY(${-up * 40}px) scale(${1 - up * 0.32})` }}>
         <Words text="تطبيق ليبي واحد…" t={t} at={-0.4} step={0.1} out={T.merge - 0.1} />
         <br />
-        <Words text="يوفّرلك كل شي!" t={t} at={0.55} hi={['كل', 'شي!']} out={T.merge - 0.1} />
+        <Words text="يوفّرلك كل شي!" t={t} at={1.15} hi={['كل', 'شي!']} out={T.merge - 0.1} />
       </div>
       {cur && (
         <div className="hook-item" key={idx}>

@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+const p=await b.newPage({viewport:{width:1080,height:1920}});
+p.on('console',m=>console.log('console',m.text()));p.on('pageerror',e=>console.log('err',e.message));
+await p.goto('http://localhost:5177/src/test.html');
+await p.waitForFunction(()=>window.__ready,null,{timeout:60000});
+let t0=Date.now();await p.evaluate(()=>window.renderAt(0));console.log('render ms',Date.now()-t0);
+t0=Date.now();await p.evaluate(()=>window.renderAt(0.1));console.log('render2 ms',Date.now()-t0);
+t0=Date.now();await p.screenshot({path:'out/test.png'});console.log('shot ms',Date.now()-t0);
+await b.close();

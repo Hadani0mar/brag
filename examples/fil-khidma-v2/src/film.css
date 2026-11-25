@@ -1,0 +1,32 @@
+@import url('../assets/fonts/fonts.css');
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #fff; }
+#stage { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+#overlay { position: absolute; inset: 0; }
+.overlay { position: absolute; inset: 0; font-family: Kufam, sans-serif; color: #141816; pointer-events: none; }
+.words > span { display: inline-block; }
+.hi { color: #f26430; }
+
+.hook { position: absolute; top: 150px; left: 60px; right: 60px; text-align: center; }
+.hook-head { white-space: nowrap; font-weight: 900; font-size: 96px; line-height: 1.32; transform-origin: 50% 0; }
+.hook-item { position: relative; height: 170px; margin-top: -40px; }
+.hook-item .item { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 112px; color: #f26430; white-space: nowrap; }
+.hook-item .item.last { color: #141816; }
+.progress { display: flex; justify-content: center; gap: 14px; margin-top: 6px; direction: rtl; }
+.progress span { width: 46px; height: 10px; border-radius: 5px; background: #ececec; }
+.progress span.on { background: #f26430; }
+
+.cap { position: absolute; top: 160px; left: 70px; right: 70px; text-align: center; font-weight: 800; font-size: 74px; line-height: 1.45; text-wrap: balance; }
+.cap.big { font-size: 128px; font-weight: 900; top: 210px; }
+.cap.l10 { font-size: 64px; top: 180px; }
+
+.sat { position: absolute; transform-origin: 50% 50%; --ss-accent: #f26430; }
+.sat .ss-badge { font-family: Kufam, sans-serif; letter-spacing: 0 !important; direction: rtl; font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.12); }
+.sat .b-orange { background: #f26430; color: #fff; }
+.sat .b-yellow { background: #ffd200; color: #4a0f5c; }
+.sat .ss-chip { font-family: Kufam, sans-serif; font-weight: 700; background: #e9f9ef; color: #168752; box-shadow: 0 10px 30px rgba(0,0,0,0.12); direction: rtl; }
+.bolt { margin-left: 3px; }
+
+.store { position: absolute; left: 50%; bottom: 250px; display: flex; align-items: center; gap: 22px; padding: 22px 44px; border-radius: 28px; background: #111; color: #fff; box-shadow: 0 20px 60px rgba(0,0,0,0.18); direction: ltr; }
+.store img { width: 64px; height: 64px; }
+.store span { display: flex; flex-direction: column; font-family: Inter, sans-serif; font-weight: 600; font-size: 46px; line-height: 1.1; }
+.store small { font-family: Kufam, sans-serif; font-size: 26px; font-weight: 500; opacity: 0.8; text-align: left; }
